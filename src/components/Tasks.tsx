@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { CheckSquare, Square, Plus, Calendar, User, Flag, Filter } from 'lucide-react';
 import Modal from './ui/Modal';
+import TaskDetail from './TaskDetail';
 
 const Tasks: React.FC = () => {
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
@@ -128,6 +130,16 @@ const Tasks: React.FC = () => {
     return due < today;
   };
 
+  // Show task detail if a task is selected
+  if (selectedTaskId) {
+    return (
+      <TaskDetail 
+        taskId={selectedTaskId} 
+        onBack={() => setSelectedTaskId(null)} 
+      />
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -194,13 +206,17 @@ const Tasks: React.FC = () => {
         {filteredTasks.map((task) => (
           <div 
             key={task.id} 
-            className={`bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-shadow ${
+            className={`bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-shadow cursor-pointer ${
               isOverdue(task.dueDate, task.completed) ? 'border-red-200 bg-red-50' : 'border-slate-200'
             }`}
+            onClick={() => setSelectedTaskId(task.id)}
           >
             <div className="flex items-start space-x-4">
               <button
-                onClick={() => toggleTask(task.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleTask(task.id);
+                }}
                 className="mt-1 flex-shrink-0"
               >
                 {task.completed ? (

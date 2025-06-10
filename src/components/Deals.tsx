@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Plus, DollarSign, Calendar, User } from 'lucide-react';
 import Modal from './ui/Modal';
+import DealDetail from './DealDetail';
 
 const Deals: React.FC = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [selectedDealId, setSelectedDealId] = useState<string | null>(null);
   const [newDeal, setNewDeal] = useState({
     title: '',
     value: '',
@@ -95,6 +97,16 @@ const Deals: React.FC = () => {
     }, 0);
   };
 
+  // Show deal detail if a deal is selected
+  if (selectedDealId) {
+    return (
+      <DealDetail 
+        dealId={selectedDealId} 
+        onBack={() => setSelectedDealId(null)} 
+      />
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -153,6 +165,7 @@ const Deals: React.FC = () => {
                               className={`bg-white rounded-lg border border-slate-200 p-4 shadow-sm hover:shadow-md transition-shadow cursor-move ${
                                 snapshot.isDragging ? 'shadow-lg transform rotate-3' : ''
                               }`}
+                              onClick={() => setSelectedDealId(deal.id)}
                             >
                               <h4 className="font-medium text-slate-900 mb-2">{deal.title}</h4>
                               <div className="space-y-2">

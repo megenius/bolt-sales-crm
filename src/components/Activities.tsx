@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Phone, Mail, Calendar, Video, Clock, Filter, Plus } from 'lucide-react';
 import Modal from './ui/Modal';
+import ActivityDetail from './ActivityDetail';
 
 const Activities: React.FC = () => {
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [selectedActivityId, setSelectedActivityId] = useState<number | null>(null);
   const [newActivity, setNewActivity] = useState({
     type: 'call',
     title: '',
@@ -121,6 +123,16 @@ const Activities: React.FC = () => {
     }
   };
 
+  // Show activity detail if an activity is selected
+  if (selectedActivityId) {
+    return (
+      <ActivityDetail 
+        activityId={selectedActivityId} 
+        onBack={() => setSelectedActivityId(null)} 
+      />
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -161,7 +173,11 @@ const Activities: React.FC = () => {
         {filteredActivities.map((activity) => {
           const Icon = getActivityIcon(activity.type);
           return (
-            <div key={activity.id} className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow">
+            <div 
+              key={activity.id} 
+              className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow cursor-pointer"
+              onClick={() => setSelectedActivityId(activity.id)}
+            >
               <div className="flex items-start space-x-4">
                 <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${getTypeColor(activity.type)}`}>
                   <Icon className="w-5 h-5" />

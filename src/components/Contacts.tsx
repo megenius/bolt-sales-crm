@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Search, Plus, Mail, Phone, MapPin, Filter, Star, MoreVertical, Edit, Trash2, Users } from 'lucide-react';
 import Modal from './ui/Modal';
+import ContactDetail from './ContactDetail';
 
 const Contacts: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [selectedContactId, setSelectedContactId] = useState<number | null>(null);
   const [newContact, setNewContact] = useState({
     name: '',
     email: '',
@@ -123,6 +125,16 @@ const Contacts: React.FC = () => {
     }
   };
 
+  // Show contact detail if a contact is selected
+  if (selectedContactId) {
+    return (
+      <ContactDetail 
+        contactId={selectedContactId} 
+        onBack={() => setSelectedContactId(null)} 
+      />
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -193,7 +205,11 @@ const Contacts: React.FC = () => {
       {viewMode === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredContacts.map((contact) => (
-            <div key={contact.id} className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 hover:shadow-lg transition-all duration-300 group">
+            <div 
+              key={contact.id} 
+              className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 hover:shadow-lg transition-all duration-300 group cursor-pointer"
+              onClick={() => setSelectedContactId(contact.id)}
+            >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center space-x-3">
                   <div className="relative">
@@ -215,7 +231,10 @@ const Contacts: React.FC = () => {
                   <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getStatusColor(contact.status)}`}>
                     {contact.status}
                   </span>
-                  <button className="opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button 
+                    className="opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <MoreVertical className="w-4 h-4 text-slate-400 hover:text-slate-600" />
                   </button>
                 </div>
@@ -269,7 +288,11 @@ const Contacts: React.FC = () => {
               </thead>
               <tbody>
                 {filteredContacts.map((contact) => (
-                  <tr key={contact.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                  <tr 
+                    key={contact.id} 
+                    className="border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer"
+                    onClick={() => setSelectedContactId(contact.id)}
+                  >
                     <td className="py-4 px-6">
                       <div className="flex items-center space-x-3">
                         <div className="relative">
@@ -307,10 +330,16 @@ const Contacts: React.FC = () => {
                     </td>
                     <td className="py-4 px-6">
                       <div className="flex items-center justify-end space-x-2">
-                        <button className="p-2 text-slate-400 hover:text-blue-600 transition-colors">
+                        <button 
+                          className="p-2 text-slate-400 hover:text-blue-600 transition-colors"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <Edit className="w-4 h-4" />
                         </button>
-                        <button className="p-2 text-slate-400 hover:text-red-600 transition-colors">
+                        <button 
+                          className="p-2 text-slate-400 hover:text-red-600 transition-colors"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
