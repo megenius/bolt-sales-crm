@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { TrendingUp, Users, Target, DollarSign, ArrowUp, ArrowDown, Calendar, Phone, Mail, Clock } from 'lucide-react';
 import MetricCard from './ui/MetricCard';
 import Chart from './ui/Chart';
+import Modal from './ui/Modal';
 
 const Dashboard: React.FC = () => {
+  const [isQuickActionModalOpen, setIsQuickActionModalOpen] = useState(false);
+  const [quickActionType, setQuickActionType] = useState('');
+
   const metrics = [
     {
       title: 'Total Revenue',
@@ -60,6 +64,11 @@ const Dashboard: React.FC = () => {
     { task: 'Quarterly review meeting', time: 'Next Monday', priority: 'low' }
   ];
 
+  const handleQuickAction = (actionType: string) => {
+    setQuickActionType(actionType);
+    setIsQuickActionModalOpen(true);
+  };
+
   const getStageColor = (stage: string) => {
     switch (stage) {
       case 'Negotiation': return 'bg-orange-100 text-orange-800';
@@ -76,6 +85,81 @@ const Dashboard: React.FC = () => {
       case 'medium': return 'bg-yellow-100 text-yellow-800';
       case 'low': return 'bg-green-100 text-green-800';
       default: return 'bg-slate-100 text-slate-800';
+    }
+  };
+
+  const renderQuickActionForm = () => {
+    switch (quickActionType) {
+      case 'contact':
+        return (
+          <form className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Contact Name</label>
+              <input type="text" className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter contact name" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Email</label>
+              <input type="email" className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter email" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Company</label>
+              <input type="text" className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter company" />
+            </div>
+          </form>
+        );
+      case 'deal':
+        return (
+          <form className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Deal Title</label>
+              <input type="text" className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter deal title" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Value</label>
+              <input type="text" className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="$10,000" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Contact</label>
+              <input type="text" className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Contact person" />
+            </div>
+          </form>
+        );
+      case 'meeting':
+        return (
+          <form className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Meeting Title</label>
+              <input type="text" className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter meeting title" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Date & Time</label>
+              <input type="datetime-local" className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Attendees</label>
+              <input type="text" className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter attendee emails" />
+            </div>
+          </form>
+        );
+      case 'email':
+        return (
+          <form className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">To</label>
+              <input type="email" className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter recipient email" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Subject</label>
+              <input type="text" className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter subject" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Message</label>
+              <textarea rows={4} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter your message"></textarea>
+            </div>
+          </form>
+        );
+      default:
+        return null;
     }
   };
 
@@ -229,24 +313,56 @@ const Dashboard: React.FC = () => {
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
         <h3 className="text-lg font-bold text-slate-900 mb-6">Quick Actions</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <button className="flex flex-col items-center p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors group">
+          <button 
+            onClick={() => handleQuickAction('contact')}
+            className="flex flex-col items-center p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors group"
+          >
             <Users className="w-8 h-8 text-blue-600 mb-2 group-hover:scale-110 transition-transform" />
             <span className="text-sm font-medium text-blue-900">Add Contact</span>
           </button>
-          <button className="flex flex-col items-center p-4 bg-green-50 rounded-xl hover:bg-green-100 transition-colors group">
+          <button 
+            onClick={() => handleQuickAction('deal')}
+            className="flex flex-col items-center p-4 bg-green-50 rounded-xl hover:bg-green-100 transition-colors group"
+          >
             <Target className="w-8 h-8 text-green-600 mb-2 group-hover:scale-110 transition-transform" />
             <span className="text-sm font-medium text-green-900">Create Deal</span>
           </button>
-          <button className="flex flex-col items-center p-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition-colors group">
+          <button 
+            onClick={() => handleQuickAction('meeting')}
+            className="flex flex-col items-center p-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition-colors group"
+          >
             <Calendar className="w-8 h-8 text-purple-600 mb-2 group-hover:scale-110 transition-transform" />
             <span className="text-sm font-medium text-purple-900">Schedule Meeting</span>
           </button>
-          <button className="flex flex-col items-center p-4 bg-orange-50 rounded-xl hover:bg-orange-100 transition-colors group">
+          <button 
+            onClick={() => handleQuickAction('email')}
+            className="flex flex-col items-center p-4 bg-orange-50 rounded-xl hover:bg-orange-100 transition-colors group"
+          >
             <Mail className="w-8 h-8 text-orange-600 mb-2 group-hover:scale-110 transition-transform" />
             <span className="text-sm font-medium text-orange-900">Send Email</span>
           </button>
         </div>
       </div>
+
+      {/* Quick Action Modal */}
+      <Modal
+        isOpen={isQuickActionModalOpen}
+        onClose={() => setIsQuickActionModalOpen(false)}
+        title={`Quick ${quickActionType.charAt(0).toUpperCase() + quickActionType.slice(1)}`}
+      >
+        {renderQuickActionForm()}
+        <div className="flex justify-end space-x-3 pt-6 mt-6 border-t border-slate-200">
+          <button
+            onClick={() => setIsQuickActionModalOpen(false)}
+            className="px-4 py-2 text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+          >
+            Cancel
+          </button>
+          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            Create
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 };

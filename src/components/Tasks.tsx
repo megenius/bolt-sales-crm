@@ -1,7 +1,19 @@
 import React, { useState } from 'react';
 import { CheckSquare, Square, Plus, Calendar, User, Flag, Filter } from 'lucide-react';
+import Modal from './ui/Modal';
 
 const Tasks: React.FC = () => {
+  const [selectedFilter, setSelectedFilter] = useState('all');
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [newTask, setNewTask] = useState({
+    title: '',
+    description: '',
+    assignee: 'John Doe',
+    contact: '',
+    dueDate: '',
+    priority: 'medium'
+  });
+
   const [tasks, setTasks] = useState([
     {
       id: 1,
@@ -49,7 +61,25 @@ const Tasks: React.FC = () => {
     }
   ]);
 
-  const [selectedFilter, setSelectedFilter] = useState('all');
+  const handleAddTask = (e: React.FormEvent) => {
+    e.preventDefault();
+    const task = {
+      id: tasks.length + 1,
+      ...newTask,
+      status: 'pending',
+      completed: false
+    };
+    setTasks([task, ...tasks]);
+    setNewTask({
+      title: '',
+      description: '',
+      assignee: 'John Doe',
+      contact: '',
+      dueDate: '',
+      priority: 'medium'
+    });
+    setIsAddModalOpen(false);
+  };
 
   const toggleTask = (taskId: number) => {
     setTasks(tasks.map(task => 
@@ -106,7 +136,10 @@ const Tasks: React.FC = () => {
           <h1 className="text-3xl font-bold text-slate-900">Tasks</h1>
           <p className="text-slate-600 mt-2">Manage your sales tasks and automation workflows</p>
         </div>
-        <button className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+        <button 
+          onClick={() => setIsAddModalOpen(true)}
+          className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+        >
           <Plus className="w-4 h-4" />
           <span>Create Task</span>
         </button>
@@ -228,6 +261,103 @@ const Tasks: React.FC = () => {
           <p className="text-slate-500">No tasks found matching your criteria.</p>
         </div>
       )}
+
+      {/* Add Task Modal */}
+      <Modal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        title="Create New Task"
+      >
+        <form onSubmit={handleAddTask} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Task Title *</label>
+            <input
+              type="text"
+              required
+              value={newTask.title}
+              onChange={(e) => setNewTask({...newTask, title: e.target.value})}
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Enter task title"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Description</label>
+            <textarea
+              value={newTask.description}
+              onChange={(e) => setNewTask({...newTask, description: e.target.value})}
+              rows={3}
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Enter task description"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Assignee</label>
+              <select
+                value={newTask.assignee}
+                onChange={(e) => setNewTask({...newTask, assignee: e.target.value})}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="John Doe">John Doe</option>
+                <option value="Jane Smith">Jane Smith</option>
+                <option value="Mike Johnson">Mike Johnson</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Contact Person</label>
+              <input
+                type="text"
+                value={newTask.contact}
+                onChange={(e) => setNewTask({...newTask, contact: e.target.value})}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Related contact (optional)"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Due Date</label>
+              <input
+                type="date"
+                value={newTask.dueDate}
+                onChange={(e) => setNewTask({...newTask, dueDate: e.target.value})}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Priority</label>
+              <select
+                value={newTask.priority}
+                onChange={(e) => setNewTask({...newTask, priority: e.target.value})}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex justify-end space-x-3 pt-4">
+            <button
+              type="button"
+              onClick={() => setIsAddModalOpen(false)}
+              className="px-4 py-2 text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Create Task
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };

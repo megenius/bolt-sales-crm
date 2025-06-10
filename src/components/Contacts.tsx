@@ -1,12 +1,23 @@
 import React, { useState } from 'react';
-import { Search, Plus, Mail, Phone, MapPin, Filter, Star, MoreVertical, Edit, Trash2 } from 'lucide-react';
+import { Search, Plus, Mail, Phone, MapPin, Filter, Star, MoreVertical, Edit, Trash2, Users } from 'lucide-react';
+import Modal from './ui/Modal';
 
 const Contacts: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [newContact, setNewContact] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    company: '',
+    role: '',
+    location: '',
+    status: 'prospect'
+  });
 
-  const contacts = [
+  const [contacts, setContacts] = useState([
     {
       id: 1,
       name: 'Sarah Johnson',
@@ -67,7 +78,31 @@ const Contacts: React.FC = () => {
       favorite: false,
       tags: ['Startup', 'Follow-up']
     }
-  ];
+  ]);
+
+  const handleAddContact = (e: React.FormEvent) => {
+    e.preventDefault();
+    const contact = {
+      id: contacts.length + 1,
+      ...newContact,
+      lastContact: 'Just added',
+      dealValue: '$0',
+      avatar: 'https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
+      favorite: false,
+      tags: ['New Contact']
+    };
+    setContacts([...contacts, contact]);
+    setNewContact({
+      name: '',
+      email: '',
+      phone: '',
+      company: '',
+      role: '',
+      location: '',
+      status: 'prospect'
+    });
+    setIsAddModalOpen(false);
+  };
 
   const filteredContacts = contacts.filter(contact => {
     const matchesSearch = contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -115,7 +150,10 @@ const Contacts: React.FC = () => {
               List
             </button>
           </div>
-          <button className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
+          <button 
+            onClick={() => setIsAddModalOpen(true)}
+            className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+          >
             <Plus className="w-4 h-4" />
             <span>Add Contact</span>
           </button>
@@ -294,6 +332,107 @@ const Contacts: React.FC = () => {
           <p className="text-slate-400 text-sm mt-1">Try adjusting your search or filters.</p>
         </div>
       )}
+
+      {/* Add Contact Modal */}
+      <Modal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        title="Add New Contact"
+      >
+        <form onSubmit={handleAddContact} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Full Name *</label>
+              <input
+                type="text"
+                required
+                value={newContact.name}
+                onChange={(e) => setNewContact({...newContact, name: e.target.value})}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Enter full name"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Email *</label>
+              <input
+                type="email"
+                required
+                value={newContact.email}
+                onChange={(e) => setNewContact({...newContact, email: e.target.value})}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Enter email address"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Phone</label>
+              <input
+                type="tel"
+                value={newContact.phone}
+                onChange={(e) => setNewContact({...newContact, phone: e.target.value})}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Enter phone number"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Company</label>
+              <input
+                type="text"
+                value={newContact.company}
+                onChange={(e) => setNewContact({...newContact, company: e.target.value})}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Enter company name"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Role</label>
+              <input
+                type="text"
+                value={newContact.role}
+                onChange={(e) => setNewContact({...newContact, role: e.target.value})}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Enter job title"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Location</label>
+              <input
+                type="text"
+                value={newContact.location}
+                onChange={(e) => setNewContact({...newContact, location: e.target.value})}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Enter location"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Status</label>
+            <select
+              value={newContact.status}
+              onChange={(e) => setNewContact({...newContact, status: e.target.value})}
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="prospect">Prospect</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+          <div className="flex justify-end space-x-3 pt-4">
+            <button
+              type="button"
+              onClick={() => setIsAddModalOpen(false)}
+              className="px-4 py-2 text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Add Contact
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };

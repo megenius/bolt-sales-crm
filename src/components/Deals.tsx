@@ -1,8 +1,19 @@
 import React, { useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Plus, DollarSign, Calendar, User } from 'lucide-react';
+import Modal from './ui/Modal';
 
 const Deals: React.FC = () => {
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [newDeal, setNewDeal] = useState({
+    title: '',
+    value: '',
+    contact: '',
+    dueDate: '',
+    probability: 25,
+    stage: 'qualified'
+  });
+
   const [deals, setDeals] = useState({
     'qualified': [
       { id: '1', title: 'Acme Corp Integration', value: '$15,000', contact: 'Sarah Johnson', dueDate: '2024-02-15', probability: 25 },
@@ -26,6 +37,29 @@ const Deals: React.FC = () => {
     { id: 'negotiation', title: 'Negotiation', color: 'bg-orange-50 border-orange-200' },
     { id: 'closed', title: 'Closed Won', color: 'bg-green-50 border-green-200' }
   ];
+
+  const handleAddDeal = (e: React.FormEvent) => {
+    e.preventDefault();
+    const deal = {
+      id: Date.now().toString(),
+      ...newDeal
+    };
+    
+    setDeals(prev => ({
+      ...prev,
+      [newDeal.stage]: [...prev[newDeal.stage as keyof typeof prev], deal]
+    }));
+    
+    setNewDeal({
+      title: '',
+      value: '',
+      contact: '',
+      dueDate: '',
+      probability: 25,
+      stage: 'qualified'
+    });
+    setIsAddModalOpen(false);
+  };
 
   const onDragEnd = (result: any) => {
     if (!result.destination) return;
@@ -69,7 +103,10 @@ const Deals: React.FC = () => {
           <h1 className="text-3xl font-bold text-slate-900">Deals Pipeline</h1>
           <p className="text-slate-600 mt-2">Track and manage your sales opportunities</p>
         </div>
-        <button className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+        <button 
+          onClick={() => setIsAddModalOpen(true)}
+          className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+        >
           <Plus className="w-4 h-4" />
           <span>Add Deal</span>
         </button>
@@ -157,6 +194,113 @@ const Deals: React.FC = () => {
           </div>
         </DragDropContext>
       </div>
+
+      {/* Add Deal Modal */}
+      <Modal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        title="Add New Deal"
+      >
+        <form onSubmit={handleAddDeal} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Deal Title *</label>
+            <input
+              type="text"
+              required
+              value={newDeal.title}
+              onChange={(e) => setNewDeal({...newDeal, title: e.target.value})}
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Enter deal title"
+            />
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Deal Value *</label>
+              <input
+                type="text"
+                required
+                value={newDeal.value}
+                onChange={(e) => setNewDeal({...newDeal, value: e.target.value})}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="$10,000"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Contact Person *</label>
+              <input
+                type="text"
+                required
+                value={newDeal.contact}
+                onChange={(e) => setNewDeal({...newDeal, contact: e.target.value})}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Contact name"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Due Date</label>
+              <input
+                type="date"
+                value={newDeal.dueDate}
+                onChange={(e) => setNewDeal({...newDeal, dueDate: e.target.value})}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Stage</label>
+              <select
+                value={newDeal.stage}
+                onChange={(e) => setNewDeal({...newDeal, stage: e.target.value})}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="qualified">Qualified</option>
+                <option value="proposal">Proposal</option>
+                <option value="negotiation">Negotiation</option>
+                <option value="closed">Closed Won</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              Probability: {newDeal.probability}%
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="5"
+              value={newDeal.probability}
+              onChange={(e) => setNewDeal({...newDeal, probability: parseInt(e.target.value)})}
+              className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer"
+            />
+            <div className="flex justify-between text-xs text-slate-500 mt-1">
+              <span>0%</span>
+              <span>50%</span>
+              <span>100%</span>
+            </div>
+          </div>
+
+          <div className="flex justify-end space-x-3 pt-4">
+            <button
+              type="button"
+              onClick={() => setIsAddModalOpen(false)}
+              className="px-4 py-2 text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Add Deal
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };

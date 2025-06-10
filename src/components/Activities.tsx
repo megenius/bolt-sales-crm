@@ -1,10 +1,22 @@
 import React, { useState } from 'react';
 import { Phone, Mail, Calendar, Video, Clock, Filter, Plus } from 'lucide-react';
+import Modal from './ui/Modal';
 
 const Activities: React.FC = () => {
   const [selectedFilter, setSelectedFilter] = useState('all');
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [newActivity, setNewActivity] = useState({
+    type: 'call',
+    title: '',
+    contact: '',
+    company: '',
+    date: '',
+    time: '',
+    duration: '',
+    notes: ''
+  });
 
-  const activities = [
+  const [activities, setActivities] = useState([
     {
       id: 1,
       type: 'call',
@@ -53,7 +65,28 @@ const Activities: React.FC = () => {
       status: 'missed',
       notes: 'Client did not join the scheduled call. Follow-up required.'
     }
-  ];
+  ]);
+
+  const handleAddActivity = (e: React.FormEvent) => {
+    e.preventDefault();
+    const activity = {
+      id: activities.length + 1,
+      ...newActivity,
+      status: 'pending'
+    };
+    setActivities([activity, ...activities]);
+    setNewActivity({
+      type: 'call',
+      title: '',
+      contact: '',
+      company: '',
+      date: '',
+      time: '',
+      duration: '',
+      notes: ''
+    });
+    setIsAddModalOpen(false);
+  };
 
   const filteredActivities = activities.filter(activity => 
     selectedFilter === 'all' || activity.type === selectedFilter
@@ -96,7 +129,10 @@ const Activities: React.FC = () => {
           <h1 className="text-3xl font-bold text-slate-900">Activities</h1>
           <p className="text-slate-600 mt-2">Track all your sales activities and communications</p>
         </div>
-        <button className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+        <button 
+          onClick={() => setIsAddModalOpen(true)}
+          className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+        >
           <Plus className="w-4 h-4" />
           <span>Log Activity</span>
         </button>
@@ -166,6 +202,124 @@ const Activities: React.FC = () => {
           <p className="text-slate-500">No activities found matching your criteria.</p>
         </div>
       )}
+
+      {/* Add Activity Modal */}
+      <Modal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        title="Log New Activity"
+      >
+        <form onSubmit={handleAddActivity} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Activity Type</label>
+            <select
+              value={newActivity.type}
+              onChange={(e) => setNewActivity({...newActivity, type: e.target.value})}
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="call">Phone Call</option>
+              <option value="email">Email</option>
+              <option value="meeting">Meeting</option>
+              <option value="video">Video Call</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Activity Title *</label>
+            <input
+              type="text"
+              required
+              value={newActivity.title}
+              onChange={(e) => setNewActivity({...newActivity, title: e.target.value})}
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Enter activity title"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Contact Person *</label>
+              <input
+                type="text"
+                required
+                value={newActivity.contact}
+                onChange={(e) => setNewActivity({...newActivity, contact: e.target.value})}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Contact name"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Company</label>
+              <input
+                type="text"
+                value={newActivity.company}
+                onChange={(e) => setNewActivity({...newActivity, company: e.target.value})}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Company name"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Date *</label>
+              <input
+                type="date"
+                required
+                value={newActivity.date}
+                onChange={(e) => setNewActivity({...newActivity, date: e.target.value})}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Time</label>
+              <input
+                type="time"
+                value={newActivity.time}
+                onChange={(e) => setNewActivity({...newActivity, time: e.target.value})}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Duration</label>
+              <input
+                type="text"
+                value={newActivity.duration}
+                onChange={(e) => setNewActivity({...newActivity, duration: e.target.value})}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="30 min"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Notes</label>
+            <textarea
+              value={newActivity.notes}
+              onChange={(e) => setNewActivity({...newActivity, notes: e.target.value})}
+              rows={4}
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Add notes about this activity..."
+            />
+          </div>
+
+          <div className="flex justify-end space-x-3 pt-4">
+            <button
+              type="button"
+              onClick={() => setIsAddModalOpen(false)}
+              className="px-4 py-2 text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Log Activity
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };
